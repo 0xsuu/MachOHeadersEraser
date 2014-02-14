@@ -3,9 +3,13 @@ MachOHeadersEraser
 
 A python program to remove some important information in MachO headers that most disassemblers use.
 
+
+
 Useage: python eraser.py [Executable name]
 
-This program needs macholib, find it on google. Thanks the authors for their work.
+This program needs #macholib#, find it on google. Thanks the authors for their work.
+
+
 
 This program will generate a new executable and replace the raw one after making a backup.
 
