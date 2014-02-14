@@ -23,14 +23,14 @@ def main(executableName):
     for header in machoHeader.headers:
         eraseLoadCommandInHeader(header)
 
-    print '[+]Generating new excutable'
+    print '[+]Generating new executable'
     spliceHeadersAndRawStuff(machoHeader, executableName)
-    print '[+]New excutable generated'
+    print '[+]New executable generated'
 
     print '[+]Overwriting raw executable'
     os.system('mv %s_tmp %s' % (executableName, executableName))
 
-    print '[+]Giving execute permission to new excutable'
+    print '[+]Giving execute permission to new executable'
     givex(executableName)
 
     print
@@ -43,18 +43,18 @@ def givex(str):
     return
 
 def spliceHeadersAndRawStuff(header, name):
-    outputExcutable = open('%s_tmp' % name,'wb')
-    header.write(outputExcutable)
+    outputexecutable = open('%s_tmp' % name,'wb')
+    header.write(outputexecutable)
     
     rawStuff = open(name, 'rb')
     
     offset = header.headers[len(header.headers)-1].low_offset
     
     rawStuff.seek(offset)
-    outputExcutable.write(rawStuff.read())
-    outputExcutable.write('Suu!')
+    outputexecutable.write(rawStuff.read())
+    outputexecutable.write('Suu!')
     
-    outputExcutable.close()
+    outputexecutable.close()
     rawStuff.close()
     
     return
@@ -146,7 +146,7 @@ def checkStrInList(string,list):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print 'Useage: python',sys.argv[0],'[excutable path]'
+        print 'Useage: python',sys.argv[0],'[executable path]'
         exit()
     
     if not os.path.exists(sys.argv[1]):
