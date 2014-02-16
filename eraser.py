@@ -7,6 +7,11 @@ import os
 import sys
 
 def main(executableName):
+    print
+    print 'MachO Headers Eraser'
+    print
+    print 'This script may cause some unpredictable issues, try delete things in the safe list if your program doesn\'t work after patched.'
+    print
     print '[+]Checking if patched'
     rawFile = open(executableName, 'r')
     rawFile.seek(-4, 2)
@@ -60,11 +65,37 @@ def spliceHeadersAndRawStuff(header, name):
     return
 
 def eraseLoadCommandInHeader(header):
-    #########################################################
-    # Add confirmed removeable stuff to the following lists #
-    #########################################################
+    ##################################################################
+    # Add confirmed removeable stuff to the following lists or       #
+    # remove the stuff which cause problems from the following lists #
+    ##################################################################
     safeRemoveList_segname = ['__PAGEZERO', '__DATA']
-    safeRemoveList_sectname = ['__text','__stubs','__stub_helper','__cstring','__cfstring','__unwind_info','__eh_frame','__nl_symbol_ptr','__la_symbol_ptr']
+    safeRemoveList_sectname = ['__text',
+                               '__stubs',
+                               '__stub_helper',
+                               '__cstring',
+                               '__cfstring',
+                               '__unwind_info',
+                               '__eh_frame',
+                               '__nl_symbol_ptr',
+                               '__la_symbol_ptr',
+                               '__objc_classlist',
+                               '__objc_classrefs',
+                               '__objc_superrefs',
+                               '__objc_protolist',
+                               '__objc_classlist',
+                               '__objc_msgrefs',
+                               '__objc_imageinfo',
+                               '__objc_methname',
+                               '__objc_classname',
+                               '__objc_methtype',
+                               '__gcc_except_tab',
+                               '__got',
+                               '__objc_const',
+                               '__objc_selrefs',
+                               '__objc_data',
+                               '__objc_ivar',
+                               '__data']
 
     print
     
@@ -82,8 +113,8 @@ def eraseLoadCommandInHeader(header):
                     sect.sectname = '\0'
                     sect.segname = '\0'
                     sect.addr = 0
-                    sect.size = 0
-                    sect.offset = 0
+                    sect.size = 4
+                    sect.offset = os.path.getsize(sys.argv[1])
                     sect.align = 0
                     sect.reloff = 0
                     sect.nreloc = 0
@@ -92,21 +123,21 @@ def eraseLoadCommandInHeader(header):
                     sect.reserved2 = 0
 
         if type(cmd) == mach_o.dyld_info_command:
-            print '[+]Erasing data for segment dyld_info_command'
+            print '[+]Erasing part data for segment LC_LOAD_DYLINKER'
             cmd.weak_bind_off = 0
             cmd.weak_bind_size = 0
             cmd.export_off = 0
             cmd.export_size = 0
 
         if type(cmd) == mach_o.symtab_command:
-            print '[+]Erasing data for segment symtab_command'
+            print '[+]Erasing data for segment LC_SYMTAB'
             cmd.symoff = 0
             cmd.nsyms = 0
             cmd.stroff = 0
             cmd.strsize = 0
                 
         if type(cmd) == mach_o.dysymtab_command:
-            print '[+]Erasing data for segment dysymtab_command'
+            print '[+]Erasing data for segment LC_DYSYMTAB'
             cmd.ilocalsym = 0
             cmd.nlocalsym = 0
             cmd.iextdefsym = 0
@@ -127,9 +158,15 @@ def eraseLoadCommandInHeader(header):
             cmd.nlocrel = 0
             
         if type(cmd) == mach_o.uuid_command:
-            print '[+]Erasing data for segment uuid_command'
+            print '[+]Erasing data for segment LC_UUID'
             cmd.uuid = '\0'
 
+        if type(cmd) == mach_o.linkedit_data_command:
+            if lc.cmd == 0x26:
+                print '[+]Erasing data for segment LC_FUNCTION_STARTS'
+                cmd.dataoff = os.path.getsize(sys.argv[1])
+                cmd.datassize = 4
+                    
         #add more removeable load commands here
 
     print
